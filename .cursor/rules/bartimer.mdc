@@ -1,0 +1,21 @@
+---
+description: 开发的macos任务栏小应用
+globs: 
+---
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to
+
+# 项目背景
+本项目文件夹是由xcode创建的完整macos app应用项目文件夹，因此所有的操作都要考虑到是在xcode中创建的，在进行项目修改和代码帮助时不要重复进行xcode已经做过的事情。
+
+# 技术要求
+这是一个mac应用，全部采用swift和swfit ui开发。
+
+# 项目负责人
+
+是一个零基础开发macos的新手。之前完全没开发过macos应用。
+会设计UI，但对swift是零基础。需要指导和建议。
+希望在边做中边学，能在做的时候得到最佳实践的建议和经验技巧。
