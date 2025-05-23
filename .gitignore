@@ -1,0 +1,67 @@
+# ========================
+# Xcode & macOS 项目专用
+# ========================
+
+# 编译产物
+/build/
+/DerivedData/
+/*.xcworkspace
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcuserdatad/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+
+# 模拟器日志、临时文件
+*.moved-aside
+*.xcuserstate
+*.swp
+*.lock
+*.xcscmblueprint
+
+# App 沙盒容器数据
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/
+Carthage/Build/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Git
+.DS_Store
+*.orig
+*.rej
+
+# 用户偏好配置
+*.xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcdebugger/
+.idea/
+.vscode/
+
+# Instruments 等调试工具文件
+*.trace
+*.plist
+
+# Firebase 等 crash 报告缓存
+*.crash
+
+# Git LFS 警告文件
+*.lfs
+
+# App 运行时临时文件
+*.out
+*.log
+*.tmp
