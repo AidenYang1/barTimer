@@ -2,6 +2,11 @@
 # Xcode & macOS 项目专用
 # ========================
 
+# VS Code 和 Cursor 配置文件
+.vscode/
+.cursor/
+.cursor/rules/
+
 # 编译产物
 /build/
 /DerivedData/·
