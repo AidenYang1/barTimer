@@ -6,7 +6,7 @@
     <description>barTimer update feed</description>
     <language>zh-cn</language>
 
-    <!-- ===== 每次发新版本，在这里顶部插入一个新 <item>，保留旧的 ===== -->
+    <!-- ===== 插入一个新 <item>，保留旧的 ===== -->
 
     <item>
       <title>Version 1.0.0</title>
@@ -15,11 +15,11 @@
         https://github.com/AidenYang1/barTimer/releases/tag/v1.0.0
       </sparkle:releaseNotesLink>
       <enclosure
-        url="https://github.com/AidenYang1/barTimer/releases/download/v1.0.0/barTimer.dmg"
+        url="https://github.com/AidenYang1/barTimer/releases/download/v1.0.0/barTimer_1.0.0.dmg"
         sparkle:version="1.0.0"
         sparkle:shortVersionString="1.0.0"
-        sparkle:edSignature="PLACEHOLDER_REPLACE_WITH_SIGNATURE"
-        length="0"
+        sparkle:edSignature="HY89vm1cvNn4ooNMB1pkSTYeY5tZSVrD6qOHDOCkRtTB++rhvc+r52V3VEpu3QKZHVZFN/G6ZP/cGjNCsf98DQ=="
+        length="5608675"
         type="application/x-apple-diskimage" />
     </item>
 
