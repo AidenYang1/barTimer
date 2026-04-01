@@ -421,7 +421,7 @@
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_SUFeedURL = "https://AidenYang1.github.io/barTimer/appcast.xml";
-				INFOPLIST_KEY_SUPublicEDKey = "PLACEHOLDER_REPLACE_WITH_YOUR_PUBLIC_KEY";
+				INFOPLIST_KEY_SUPublicEDKey = "BjMADZgHUM3mIZPcAh00bhN0pBD3548COGKhyuW45SQ=";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -453,7 +453,7 @@
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_SUFeedURL = "https://AidenYang1.github.io/barTimer/appcast.xml";
-				INFOPLIST_KEY_SUPublicEDKey = "PLACEHOLDER_REPLACE_WITH_YOUR_PUBLIC_KEY";
+				INFOPLIST_KEY_SUPublicEDKey = "BjMADZgHUM3mIZPcAh00bhN0pBD3548COGKhyuW45SQ=";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
