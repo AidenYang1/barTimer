@@ -15,12 +15,12 @@
         https://github.com/AidenYang1/barTimer/releases/tag/v1.0.0
       </sparkle:releaseNotesLink>
       <enclosure
-        url="https://github.com/AidenYang1/barTimer/releases/download/v1.0.0/barTimer.zip"
+        url="https://github.com/AidenYang1/barTimer/releases/download/v1.0.0/barTimer.dmg"
         sparkle:version="1.0.0"
         sparkle:shortVersionString="1.0.0"
         sparkle:edSignature="PLACEHOLDER_REPLACE_WITH_SIGNATURE"
         length="0"
-        type="application/octet-stream" />
+        type="application/x-apple-diskimage" />
     </item>
 
   </channel>
