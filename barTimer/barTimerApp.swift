@@ -62,10 +62,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func checkForUpdates() {
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
-        let alert = NSAlert()
-        alert.messageText = "DEBUG: checkForUpdates reached"
-        alert.informativeText = "shared=\(AppDelegate.shared != nil), about to call Sparkle"
-        alert.runModal()
         updaterController.checkForUpdates(nil)
     }
 }
