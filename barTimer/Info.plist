@@ -4,6 +4,10 @@
 <dict>
 	<key>CFBundleIconFile</key>
 	<string>APPIcon</string>
+	<key>SUFeedURL</key>
+	<string>https://AidenYang1.github.io/barTimer/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>BjMADZgHUM3mIZPcAh00bhN0pBD3548COGKhyuW45SQ=</string>
 </dict>
 </plist>
 
