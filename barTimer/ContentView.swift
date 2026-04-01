@@ -275,6 +275,7 @@ struct ContentView: View {
                     }
                 
                 Group {
+                    let brandColor = Color(red: 90/255, green: 80/255, blue: 222/255)
                     if #available(macOS 26.0, *) {
                         Button(action: addNewTimer) {
                             Image(systemName: "play.fill")
@@ -282,6 +283,7 @@ struct ContentView: View {
                                 .padding(8)
                         }
                         .buttonStyle(.glass)
+                        .tint(brandColor)
                     } else {
                         Button(action: addNewTimer) {
                             Image(systemName: "play.fill")
@@ -291,7 +293,7 @@ struct ContentView: View {
                         .buttonStyle(.borderless)
                         .background(
                             RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.accentColor)
+                                .fill(brandColor)
                         )
                     }
                 }
