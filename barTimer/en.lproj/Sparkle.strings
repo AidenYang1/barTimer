@@ -1,0 +1,11 @@
+/* Up to date - title */
+"You're up to date!" = "You're up to date!";
+
+/* Up to date - body */
+"%@ %@ is currently the newest version available." = "%1$@ %2$@ is the latest version available.";
+
+/* Up to date - body with running version */
+"%@ %@ is currently the newest version available.\n(You are currently running version %@.)" = "%1$@ %2$@ is the latest version available.\n(You are running version %3$@.)";
+
+/* Confirm button */
+"OK" = "OK";
