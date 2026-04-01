@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A37244912F7D08AF00E69E31 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = A37244902F7D08AF00E69E31 /* Sparkle */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		A36E34922DE0277D009CA576 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A37244912F7D08AF00E69E31 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = barTimer;
 			packageProductDependencies = (
+				A37244902F7D08AF00E69E31 /* Sparkle */,
 			);
 			productName = barTimer;
 			productReference = A36E34832DE0277B009CA576 /* barTimer.app */;
@@ -196,6 +202,9 @@
 			);
 			mainGroup = A36E347A2DE0277B009CA576;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A372448F2F7D08AF00E69E31 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A36E34842DE0277B009CA576 /* Products */;
 			projectDirPath = "";
@@ -411,6 +420,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_SUFeedURL = "https://AidenYang1.github.io/barTimer/appcast.xml";
+				INFOPLIST_KEY_SUPublicEDKey = "PLACEHOLDER_REPLACE_WITH_YOUR_PUBLIC_KEY";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -441,6 +452,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_SUFeedURL = "https://AidenYang1.github.io/barTimer/appcast.xml";
+				INFOPLIST_KEY_SUPublicEDKey = "PLACEHOLDER_REPLACE_WITH_YOUR_PUBLIC_KEY";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -566,6 +579,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A372448F2F7D08AF00E69E31 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.9.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A37244902F7D08AF00E69E31 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A372448F2F7D08AF00E69E31 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A36E347B2DE0277B009CA576 /* Project object */;
 }

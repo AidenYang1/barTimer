@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UserNotifications
+import Sparkle
 
 @main
 struct barTimerApp: App {
@@ -40,21 +41,23 @@ struct barTimerApp: App {
     }
 }
 
-// 添加 AppDelegate 来管理应用行为
 class AppDelegate: NSObject, NSApplicationDelegate {
+    let updaterController = SPUStandardUpdaterController(
+        startingUpdater: true,
+        updaterDelegate: nil,
+        userDriverDelegate: nil
+    )
+
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // 确保应用不显示在 Dock 中
         NSApp.setActivationPolicy(.accessory)
-        
-        // 自动检查更新
-        if UserDefaults.standard.object(forKey: "autoCheckUpdate") == nil || UserDefaults.standard.bool(forKey: "autoCheckUpdate") {
-            UpdateChecker().checkForUpdate()
-        }
     }
-    
+
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        // 防止重新打开时创建新的场景
         return false
+    }
+
+    func checkForUpdates() {
+        updaterController.updater.checkForUpdates()
     }
 }
 

@@ -230,8 +230,23 @@ struct SettingsView: View {
                     HStack {
                         Text("检查更新:")
                             .frame(width: 150, alignment: .trailing)
-                        Toggle("自动检查更新", isOn: $autoCheckUpdate)
-                            .frame(width: 200, alignment: .leading)
+                        Toggle("自动检查更新", isOn: Binding(
+                            get: { autoCheckUpdate },
+                            set: { newValue in
+                                autoCheckUpdate = newValue
+                                (NSApp.delegate as? AppDelegate)?.updaterController.updater.automaticallyChecksForUpdates = newValue
+                            }
+                        ))
+                        .frame(width: 200, alignment: .leading)
+                    }
+
+                    HStack {
+                        Spacer()
+                        Button("立即检查更新") {
+                            (NSApp.delegate as? AppDelegate)?.checkForUpdates()
+                        }
+                        .buttonStyle(.bordered)
+                        Spacer()
                     }
 
                     // 语言设置

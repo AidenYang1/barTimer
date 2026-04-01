@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>barTimer Updates</title>
+    <link>https://AidenYang1.github.io/barTimer/appcast.xml</link>
+    <description>barTimer update feed</description>
+    <language>zh-cn</language>
+
+    <!-- ===== 每次发新版本，在这里顶部插入一个新 <item>，保留旧的 ===== -->
+
+    <item>
+      <title>Version 1.0.0</title>
+      <pubDate>Wed, 01 Apr 2026 12:00:00 +0000</pubDate>
+      <sparkle:releaseNotesLink>
+        https://github.com/AidenYang1/barTimer/releases/tag/v1.0.0
+      </sparkle:releaseNotesLink>
+      <enclosure
+        url="https://github.com/AidenYang1/barTimer/releases/download/v1.0.0/barTimer.zip"
+        sparkle:version="1.0.0"
+        sparkle:shortVersionString="1.0.0"
+        sparkle:edSignature="PLACEHOLDER_REPLACE_WITH_SIGNATURE"
+        length="0"
+        type="application/octet-stream" />
+    </item>
+
+  </channel>
+</rss>
