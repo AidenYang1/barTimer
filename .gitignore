@@ -1,128 +1,4 @@
-# ========================
-# Xcode & macOS 项目专用
-# ========================
-
-# VS Code 和 Cursor 配置文件
-.vscode/
-.cursor/
-.cursor/rules/
-
-# 编译产物
-/build/
-/DerivedData/·
-/*.xcworkspace
-*.xcodeproj/project.xcworkspace/
-*.xcodeproj/xcuserdata/
-*.xcworkspace/xcuserdata/
-*.xcodeproj/project.xcuserdatad/
-*.xcworkspace/xcuserdata/
-*.xcuserstate
-
-# 模拟器日志、临时文件
-*.moved-aside
-*.xcuserstate
-*.swp
-*.lock
-*.xcscmblueprint
-
-# App 沙盒容器数据
-*.ipa
-*.dSYM.zip
-*.dSYM
-
-# CocoaPods
-Pods/
-Podfile.lock
-
-# Carthage
-Carthage/
-Carthage/Build/
-
-# Swift Package Manager
-.build/
-.swiftpm/
-Package.resolved
-
-# Git
-.DS_Store
-*.orig
-*.rej
-
-# 用户偏好配置
-*.xcuserdata/
-*.xcuserstate
-*.xccheckout
-*.xcdebugger/
-.idea/
-.vscode/
-
-# Instruments 等调试工具文件
-*.trace
-*.plist
-
-# Firebase 等 crash 报告缓存
-*.crash
-
-# Git LFS 警告文件
-*.lfs
-
-# App 运行时临时文件
-*.out
-*.log
-*.tmp
-
-# macOS 系统文件
-.AppleDouble
-.LSOverride
-
-# IDE 配置文件
-.idea/
-
-# 测试文件（可选，取决于你是否想要包含测试）
-barTimerTests/
-barTimerUITests/
-
-# Xcode 项目备份
-barTimer.xcodeproj/backup.*
-*.xcodeproj/project.xcworkspace/xcshareddata/
-*.xcodeproj/project.xcworkspace/xcuserdata/
-
-# Xcode
-xcuserdata/
-*.xcodeproj/*
-!*.xcodeproj/project.pbxproj
-!*.xcodeproj/xcshareddata/
-!*.xcodeproj/project.xcworkspace/
-!*.xcworkspace/contents.xcworkspacedata
-**/xcshareddata/WorkspaceSettings.xcsettings
-.build/
-DerivedData/
-*.moved-aside
-*.pbxuser
-!default.pbxuser
-*.mode1v3
-!default.mode1v3
-*.mode2v3
-!default.mode2v3
-*.perspectivev3
-!default.perspectivev3
-*.hmap
-*.ipa
-*.dSYM.zip
-*.dSYM
-
-# Swift Package Manager
-.build/
-.swiftpm/
-Package.resolved
-
-# IDE - VSCode & Cursor
-.vscode/
-.cursor/
-.cursor/rules/
-.idea/
-
-# macOS
+# macOS system files
 .DS_Store
 .AppleDouble
 .LSOverride
@@ -131,35 +7,58 @@ Icon?
 .Spotlight-V100
 .Trashes
 
-# 调试和日志文件
+# Xcode user-specific data
+xcuserdata/
+*.xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Build artifacts
+build/
+DerivedData/
+*.moved-aside
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.hmap
+*.LinkFileList
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Dependency managers
+Pods/
+Carthage/Build/
+
+# IDE/tooling local folders
+.vscode/
+.idea/
+.cursor/
+.todo2/
+barTimer/.out-of-code-insights/
+
+# Logs and temporary files
 *.log
-*.debug
 *.trace
 *.crash
-
-# 构建产物
-build/
-*.o
-*.LinkFileList
-*.hmap
-*.xcuserstate
-
-# 测试文件
-barTimerTests/
-barTimerUITests/
-
-# 其他临时文件
 *.swp
-*.lock
-*~
 *.tmp
-*.bak
+*.lock
 *.orig
-.*.sw?
+*.rej
+*~
 
-# CocoaPods
-Pods/
-Podfile.lock
-
-# Carthage
-Carthage/Build/
+# Keep project/workspace files in git, but ignore their user data
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcworkspace/xcuserdata/
