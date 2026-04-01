@@ -23,7 +23,7 @@
 	<key>NSHumanReadableCopyright</key>
 	<string></string>
 	<key>SUFeedURL</key>
-	<string>https://AidenYang1.github.io/barTimer/appcast.xml</string>
+	<string>https://raw.githubusercontent.com/AidenYang1/barTimer/main/docs/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>BjMADZgHUM3mIZPcAh00bhN0pBD3548COGKhyuW45SQ=</string>
 </dict>
