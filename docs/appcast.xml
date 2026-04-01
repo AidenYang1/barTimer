@@ -9,6 +9,21 @@
     <!-- ===== 插入一个新 <item>，保留旧的 ===== -->
 
     <item>
+      <title>Version v1.0.1</title>
+      <pubDate>Wed, 01 Apr 2026 19:13:52 +0800</pubDate>
+      <sparkle:releaseNotesLink>
+        https://github.com/AidenYang1/barTimer/releases/tag/vv1.0.1
+      </sparkle:releaseNotesLink>
+      <enclosure
+        url="https://github.com/AidenYang1/barTimer/releases/download/vv1.0.1/barTimer_1.0.1.dmg"
+        sparkle:version="v1.0.1"
+        sparkle:shortVersionString="v1.0.1"
+        sparkle:edSignature="4gWI7qMNnKq1AOWOVHo/fVVcHy/UTFkQ/shnpE2/mSgiQRYoxo218Mg8iX5Gc9V8kfu+9TQPFNuvk8c0ZjUwDQ=="
+        length="5609877"
+        type="application/x-apple-diskimage" />
+    </item>
+
+    <item>
       <title>Version 1.0.0</title>
       <pubDate>Wed, 01 Apr 2026 12:00:00 +0000</pubDate>
       <sparkle:releaseNotesLink>
