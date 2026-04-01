@@ -62,3 +62,6 @@ barTimer/.out-of-code-insights/
 *.xcodeproj/xcuserdata/
 *.xcodeproj/project.xcworkspace/xcuserdata/
 *.xcworkspace/xcuserdata/
+
+# Local tools
+工具/
