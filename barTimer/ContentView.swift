@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  barTimer
 //
-//  Created by 杨翼臣 on 2025/5/23.
+//  Created by AidenYang on 2025/5/23.
 //
 
 import SwiftUI
@@ -12,60 +12,158 @@ import UserNotifications
 // 修改窗口控制器类
 class SettingsWindowController: NSObject, NSWindowDelegate {
     static let shared = SettingsWindowController()
-    private var hostingView: NSHostingView<SettingsView>? // 保持对 hostingView 的引用
+    private var hostingView: NSHostingView<AnyView>? // 改为具体类型
     var window: NSWindow?
+    weak var timerManager: TimerManager? // 添加对 timerManager 的引用
     
-    func showWindow() {
-        if window == nil {
-            // 创建设置窗口
-            window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 400, height: 500),
-                styleMask: [.titled, .closable],
-                backing: .buffered,
-                defer: false
-            )
-            
-            // 先创建并保持对 hostingView 的引用
-            hostingView = NSHostingView(rootView: SettingsView(windowDelegate: self))
-            window?.contentView = hostingView
-            window?.title = "设置"
-            window?.center()
-            window?.level = .floating
-            window?.delegate = self
+    func showWindow(timerManager: TimerManager) {
+        self.timerManager = timerManager // 保存引用
+        
+        // 如果窗口已存在，直接显示
+        if let existingWindow = window {
+            existingWindow.makeKeyAndOrderFront(nil)
+            return
         }
         
-        window?.makeKeyAndOrderFront(nil)
+        // 创建设置窗口
+        let newWindow = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 450, height: 580),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+        
+        // 创建设置视图
+        let settingsView = SettingsView(windowDelegate: self)
+            .environmentObject(timerManager)
+        
+        // 使用 AnyView 包装
+        let anyView = AnyView(settingsView)
+        hostingView = NSHostingView(rootView: anyView)
+        
+        newWindow.contentView = hostingView
+        newWindow.title = NSLocalizedString("设置", comment: "Settings window title")
+        newWindow.center()
+        newWindow.level = .floating
+        newWindow.delegate = self
+        newWindow.isReleasedWhenClosed = false // 防止窗口自动释放
+        
+        window = newWindow
+        newWindow.makeKeyAndOrderFront(nil)
     }
     
     func closeWindow() {
-        // 先移除 hostingView
-        window?.contentView = nil
-        hostingView = nil
-        window?.close()
-        window = nil
+        guard let windowToClose = window else { return }
+        
+        // 确保在主线程执行
+        DispatchQueue.main.async { [weak self] in
+            // 先移除 delegate
+            windowToClose.delegate = nil
+            
+            // 关闭窗口
+            windowToClose.close()
+            
+            // 清理引用
+            self?.window = nil
+            self?.hostingView = nil
+        }
     }
     
-    // 处理窗口关闭事件
+    // 处理窗口关闭事件（用户点击关闭按钮）
     func windowWillClose(_ notification: Notification) {
-        // 确保清理顺序正确
-        window?.contentView = nil
-        hostingView = nil
+        // 清理引用
+        window?.delegate = nil
         window = nil
+        hostingView = nil
     }
 }
 
+// 键盘导航处理器（用于事件建议列表的上下选择）
+class SuggestionKeyHandler: ObservableObject {
+    @Published var selectedIndex: Int = -1
+    var isActive: Bool = false
+    var suggestionCount: Int = 0
+    var onSelect: ((Int) -> Void)?
+    var onSubmit: (() -> Void)?
+    private var monitor: Any?
+    
+    func start() {
+        guard monitor == nil else { return }
+        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self, self.isActive, self.suggestionCount > 0 else { return event }
+            switch Int(event.keyCode) {
+            case 125: // Down arrow
+                self.selectedIndex = min(self.selectedIndex + 1, self.suggestionCount - 1)
+                return nil
+            case 126: // Up arrow
+                self.selectedIndex = max(self.selectedIndex - 1, -1)
+                return nil
+            case 36: // Return
+                if self.selectedIndex >= 0 {
+                    self.onSelect?(self.selectedIndex)
+                    return nil
+                }
+                return event
+            default:
+                return event
+            }
+        }
+    }
+    
+    func stop() {
+        if let monitor {
+            NSEvent.removeMonitor(monitor)
+            self.monitor = nil
+        }
+    }
+    
+    deinit { stop() }
+}
+
 struct ContentView: View {
-    @StateObject private var timerManager = TimerManager()
+    @EnvironmentObject var timerManager: TimerManager  // 使用环境对象
+    @EnvironmentObject var eventStore: EventStore  // 事件存储
     @Binding var isShowingPopover: Bool
     @State private var timeInput: String = ""
+    @State private var showEventSuggestions: Bool = false
+    @State private var selectedSuggestionIndex: Int = -1
+    @StateObject private var keyHandler = SuggestionKeyHandler()
     @FocusState private var isFocused: Bool
-    @State private var showingSettings = false
+    @AppStorage("useSpaceForEvent") private var useSpaceForEvent = false
+    @State private var isHoveringMuteButton = false
+    @State private var muteBellRotation: Double = 0
+    
+    // 根据输入过滤事件建议
+    private var eventSuggestions: [String] {
+        // @ 语法
+        if timeInput.contains("@") {
+            let parts = timeInput.split(separator: "@", maxSplits: 1)
+            let query = parts.count > 1 ? String(parts[1]).trimmingCharacters(in: .whitespaces).lowercased() : ""
+            let recent = eventStore.recentEventNames(limit: 5)
+            if query.isEmpty { return recent }
+            return recent.filter { $0.lowercased().contains(query) }
+        }
+        
+        // 空格语法（开启时）
+        if useSpaceForEvent, let spaceIndex = timeInput.firstIndex(of: " ") {
+            let timePart = String(timeInput[..<spaceIndex])
+            if timerManager.parseTimeDuration(timePart) != nil {
+                let eventPart = String(timeInput[timeInput.index(after: spaceIndex)...])
+                    .trimmingCharacters(in: .whitespaces).lowercased()
+                let recent = eventStore.recentEventNames(limit: 5)
+                if eventPart.isEmpty { return recent }
+                return recent.filter { $0.lowercased().contains(eventPart) }
+            }
+        }
+        
+        return []
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
                 VStack(alignment: .leading, spacing: 5) { // 新增: 添加VStack来垂直排列文本
-                    Text("为一个\"行为\",限定时间。") // 新增: 添加提示文本
+                    Text("为一个\"行为\", 限定时间。") // 新增: 添加提示文本
                         .font(.system(size: 14))
                        
                     Text("计时器")
@@ -75,16 +173,83 @@ struct ContentView: View {
                 
                 Spacer()
                 
-                Image(systemName: "gearshape.fill")
-                    .font(.system(size: 20))
-                    .onTapGesture {
-                        // 新增: 修复openSettings未定义的问题
-                        SettingsWindowController.shared.showWindow()
+                HStack(spacing: 8) {
+                    // 滴答音效静音/响铃按钮（仅在设置中启用滴答音效时显示）
+                    if timerManager.enableTickSound {
+                        Button(action: toggleTickSoundMute) {
+                            ZStack {
+                                Image(systemName: timerManager.tickSoundMuted ? "bell.slash.fill" : "bell.fill")
+                                    .font(.system(size: 16))
+                                    .frame(width: 18, height: 18, alignment: .center)
+                                    .foregroundColor(timerManager.tickSoundMuted ? .white : .primary)
+                                    .rotationEffect(.degrees(muteBellRotation), anchor: .center)
+                            }
+                            .padding(8)
+                            .background(
+                                Circle()
+                                    .fill(timerManager.tickSoundMuted ? Color.red : Color.gray.opacity(0.2))
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .scaleEffect(isHoveringMuteButton ? 1.08 : 1.0, anchor: .center)
+                        .animation(.spring(response: 0.18, dampingFraction: 0.78), value: isHoveringMuteButton)
+                        .onHover { hovering in
+                            isHoveringMuteButton = hovering
+                        }
                     }
+                    
+                    // 历史记录按钮
+                    Group {
+                        if #available(macOS 26.0, *) {
+                            Image(systemName: "clock.arrow.circlepath")
+                                .font(.system(size: 18))
+                                .padding(8)
+                                .glassEffect(.regular.interactive(), in: .circle)
+                                .onTapGesture {
+                                    HistoryWindowController.shared.showWindow(eventStore: eventStore)
+                                }
+                        } else {
+                            Image(systemName: "clock.arrow.circlepath")
+                                .font(.system(size: 18))
+                                .padding(8)
+                                .background(
+                                    Circle()
+                                        .fill(Color.gray.opacity(0.2))
+                                )
+                                .onTapGesture {
+                                    HistoryWindowController.shared.showWindow(eventStore: eventStore)
+                                }
+                        }
+                    }
+                    
+                    // 设置按钮
+                    Group {
+                        if #available(macOS 26.0, *) {
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 20))
+                                .padding(8)
+                                .glassEffect(.regular.interactive(), in: .circle)
+                                .onTapGesture {
+                                    SettingsWindowController.shared.showWindow(timerManager: timerManager)
+                                }
+                        } else {
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 20))
+                                .padding(8)
+                                .background(
+                                    Circle()
+                                        .fill(Color.gray.opacity(0.2))
+                                )
+                                .onTapGesture {
+                                    SettingsWindowController.shared.showWindow(timerManager: timerManager)
+                                }
+                        }
+                    }
+                }
             }
             
             HStack {
-                TextField("2小时30分", text: $timeInput)
+                TextField("30分@写代码", text: $timeInput)
                     .textFieldStyle(.plain)
                     .font(.system(size: 20))
                     .frame(height: 40)
@@ -97,21 +262,93 @@ struct ContentView: View {
                         addNewTimer()
                     }
                     .focused($isFocused)
+                    .onChange(of: timeInput) { _, newValue in
+                        // 检测是否应该显示建议
+                        let hasAt = newValue.contains("@")
+                        var hasSpaceEvent = false
+                        if useSpaceForEvent, let spaceIndex = newValue.firstIndex(of: " ") {
+                            let timePart = String(newValue[..<spaceIndex])
+                            hasSpaceEvent = timerManager.parseTimeDuration(timePart) != nil
+                        }
+                        showEventSuggestions = hasAt || hasSpaceEvent
+                        selectedSuggestionIndex = -1
+                    }
                 
-                Button(action: addNewTimer) {
-                    Image(systemName: "play.fill")
-                        .foregroundColor(.white)
-                        .frame(width: 30, height: 30)
-                        .background(Color.blue)
-                        .cornerRadius(15)
+                Group {
+                    if #available(macOS 26.0, *) {
+                        Button(action: addNewTimer) {
+                            Image(systemName: "play.fill")
+                                .foregroundColor(.white)
+                                .padding(8)
+                        }
+                        .buttonStyle(.glass)
+                    } else {
+                        Button(action: addNewTimer) {
+                            Image(systemName: "play.fill")
+                                .foregroundColor(.white)
+                                .padding(8)
+                        }
+                        .buttonStyle(.borderless)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.accentColor)
+                        )
+                    }
                 }
+            }
+            
+            // 事件建议列表
+            if showEventSuggestions && !eventSuggestions.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("最近事件")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 4)
+                    ForEach(Array(eventSuggestions.enumerated()), id: \.element) { index, name in
+                        Button(action: {
+                            applySuggestion(name)
+                        }) {
+                            HStack {
+                                Image(systemName: "clock")
+                                    .foregroundColor(.secondary)
+                                    .font(.caption)
+                                Text(name)
+                                    .font(.system(size: 14))
+                                Spacer()
+                                if let record = eventStore.records.first(where: { $0.name == name }) {
+                                    Text(EventStore.formatDuration(record.totalDuration))
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(index == selectedSuggestionIndex ? Color.accentColor.opacity(0.2) : Color.gray.opacity(0.1))
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 4)
             }
             
             // 计时器列表
             ScrollView {
-                VStack(spacing: 10) {
-                    ForEach(timerManager.timers) { timer in
-                        TimerItemView(timer: timer, timerManager: timerManager)
+                if #available(macOS 26.0, *) {
+                    GlassEffectContainer(spacing: 20) {
+                        VStack(spacing: 10) {
+                            ForEach(timerManager.timers) { timer in
+                                TimerItemView(timer: timer, timerManager: timerManager)
+                            }
+                        }
+                    }
+                } else {
+                    VStack(spacing: 10) {
+                        ForEach(timerManager.timers) { timer in
+                            TimerItemView(timer: timer, timerManager: timerManager)
+                        }
                     }
                 }
             }
@@ -119,16 +356,91 @@ struct ContentView: View {
         .padding()
         .frame(width: 350)
         .frame(minHeight: 170)
-        .sheet(isPresented: $showingSettings) {
-            SettingsView(windowDelegate: SettingsWindowController.shared)
+        .onAppear {
+            keyHandler.onSelect = { index in
+                let suggestions = eventSuggestions
+                if index >= 0 && index < suggestions.count {
+                    applySuggestion(suggestions[index])
+                }
+            }
+            keyHandler.onSubmit = { [self] in
+                addNewTimer()
+            }
+            keyHandler.start()
+        }
+        .onDisappear {
+            keyHandler.stop()
+        }
+        .onChange(of: showEventSuggestions) { _, newValue in
+            keyHandler.isActive = newValue && !eventSuggestions.isEmpty
+            if !newValue { selectedSuggestionIndex = -1 }
+        }
+        .onChange(of: eventSuggestions) { _, newValue in
+            keyHandler.suggestionCount = newValue.count
+            keyHandler.isActive = showEventSuggestions && !newValue.isEmpty
+            selectedSuggestionIndex = -1
+        }
+        .onChange(of: keyHandler.selectedIndex) { _, newValue in
+            selectedSuggestionIndex = newValue
         }
     }
     
-    private func addNewTimer() {
-        if let duration = timerManager.parseTimeInput(timeInput) {
-            timerManager.addTimer(duration: duration)
-            timeInput = ""
+    private func applySuggestion(_ name: String) {
+        if let atIndex = timeInput.firstIndex(of: "@") {
+            timeInput = String(timeInput[...atIndex]) + name
+        } else if useSpaceForEvent, let spaceIndex = timeInput.firstIndex(of: " ") {
+            timeInput = String(timeInput[...spaceIndex]) + name
         }
+        showEventSuggestions = false
+        selectedSuggestionIndex = -1
+        keyHandler.selectedIndex = -1
+    }
+    
+    private func addNewTimer() {
+        if let result = timerManager.parseTimeInput(timeInput) {
+            timerManager.addTimer(duration: result.duration, eventName: result.eventName)
+            timeInput = ""
+            showEventSuggestions = false
+            selectedSuggestionIndex = -1
+            keyHandler.selectedIndex = -1
+        }
+    }
+
+    private func toggleTickSoundMute() {
+        let willMute = !timerManager.tickSoundMuted
+        timerManager.tickSoundMuted = willMute
+        if willMute {
+            timerManager.stopTickSound()
+            animateMuteBellWobble()
+        }
+    }
+
+    private func animateMuteBellWobble() {
+        withAnimation(.easeInOut(duration: 0.08)) {
+            muteBellRotation = -12
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+            withAnimation(.easeInOut(duration: 0.08)) {
+                muteBellRotation = 10
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.16) {
+            withAnimation(.easeInOut(duration: 0.08)) {
+                muteBellRotation = -6
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.24) {
+            withAnimation(.easeInOut(duration: 0.08)) {
+                muteBellRotation = 0
+            }
+        }
+    }
+    
+    // 更新预览
+    static var previews: some View {
+        ContentView(isShowingPopover: .constant(true))
+            .environmentObject(TimerManager())
+            .environmentObject(EventStore())
     }
 }
 
@@ -154,18 +466,40 @@ struct TimerItemView: View {
         return Color(red: red, green: green, blue: blue, opacity: opacity)
     }
     
-    var body: some View {
-        HStack {
-            // 修改时间显示部分
+    // 计时器标签（时间 + 事件名）
+    private var timerLabel: some View {
+        HStack(spacing: 6) {
             Text(timerManager.formatTime(timer.remainingTime))
                 .font(.system(size: 18, weight: .medium))
                 .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: 35)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(timerColor)
-                )
+            if let name = timer.eventName {
+                Text("· \(name)")
+                    .font(.system(size: 13))
+                    .foregroundColor(.white.opacity(0.8))
+                    .lineLimit(1)
+            }
+        }
+    }
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // 时间显示部分（含事件名）
+            if #available(macOS 26.0, *) {
+                timerLabel
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 36)
+                    .background(timerColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .glassEffect(.regular.tint(timerColor), in: .rect(cornerRadius: 10))
+            } else {
+                timerLabel
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 36)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(timerColor)
+                    )
+            }
             
             // 暂停/播放按钮
             Button(action: {
@@ -175,28 +509,29 @@ struct TimerItemView: View {
                     timerManager.pauseTimer(id: timer.id)
                 }
             }) {
-                Image(systemName: timer.isRunning && !timer.isPaused ? "pause.fill" : "play.fill")
-                    .foregroundColor(.white)
-                    .frame(width: 30, height: 30)
-                    .background(Color.blue)
-                    .cornerRadius(15)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.gray.opacity(0.3))
+                    Image(systemName: timer.isRunning && !timer.isPaused ? "pause.fill" : "play.fill")
+                        .foregroundColor(.white)
+                }
+                .frame(width: 36, height: 36)
             }
-            
+            .buttonStyle(.plain)
+
             // 删除按钮
             Button(action: {
                 timerManager.removeTimer(id: timer.id)
             }) {
-                Image(systemName: "xmark")
-                    .foregroundColor(.white)
-                    .frame(width: 30, height: 30)
-                    .background(Color.gray)
-                    .cornerRadius(15)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.red.opacity(0.85))
+                    Image(systemName: "xmark")
+                        .foregroundColor(.white)
+                }
+                .frame(width: 36, height: 36)
             }
+            .buttonStyle(.plain)
         }
-        .padding(.horizontal)
     }
-}
-
-#Preview {
-    ContentView(isShowingPopover: .constant(true))
 }
