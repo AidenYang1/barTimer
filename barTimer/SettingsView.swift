@@ -234,7 +234,7 @@ struct SettingsView: View {
                             get: { autoCheckUpdate },
                             set: { newValue in
                                 autoCheckUpdate = newValue
-                                (NSApp.delegate as? AppDelegate)?.updaterController.updater.automaticallyChecksForUpdates = newValue
+                                AppDelegate.shared?.updaterController.updater.automaticallyChecksForUpdates = newValue
                             }
                         ))
                         .frame(width: 200, alignment: .leading)
@@ -243,7 +243,7 @@ struct SettingsView: View {
                     HStack {
                         Spacer()
                         Button("立即检查更新") {
-                            (NSApp.delegate as? AppDelegate)?.checkForUpdates()
+                            AppDelegate.shared?.checkForUpdates()
                         }
                         .buttonStyle(.bordered)
                         Spacer()

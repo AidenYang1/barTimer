@@ -42,6 +42,8 @@ struct barTimerApp: App {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
+    static weak var shared: AppDelegate?
+
     let updaterController = SPUStandardUpdaterController(
         startingUpdater: true,
         updaterDelegate: nil,
@@ -49,15 +51,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     )
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        AppDelegate.shared = self
         NSApp.setActivationPolicy(.accessory)
-        // 监听 Sparkle 弹窗出现，确保窗口可见
-        NotificationCenter.default.addObserver(
-            forName: NSWindow.didBecomeKeyNotification,
-            object: nil,
-            queue: .main
-        ) { _ in
-            NSApp.activate(ignoringOtherApps: true)
-        }
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -67,7 +62,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func checkForUpdates() {
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
-        updaterController.updater.checkForUpdates()
+        updaterController.checkForUpdates(nil)
     }
 }
 
