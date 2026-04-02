@@ -10,6 +10,21 @@
 
     <item>
       <title>Version 1.0.1</title>
+      <pubDate>Thu, 02 Apr 2026 22:47:31 +0800</pubDate>
+      <sparkle:releaseNotesLink>
+        https://github.com/AidenYang1/barTimer/releases/tag/v1.0.1
+      </sparkle:releaseNotesLink>
+      <enclosure
+        url="https://github.com/AidenYang1/barTimer/releases/download/v1.0.1/barTimer_1.0.1.dmg"
+        sparkle:version="4"
+        sparkle:shortVersionString="1.0.1"
+        sparkle:edSignature="5nPgfVjpLxflCJP7tWiHEUwBRRs7FW44lpWdtxZHS/bYOjEd09qhBC3a1OwLk2GgEIGN3GkeZKptXENHreatCw=="
+        length="5833678"
+        type="application/x-apple-diskimage" />
+    </item>
+
+    <item>
+      <title>Version 1.0.1</title>
       <pubDate>Thu, 02 Apr 2026 22:24:35 +0800</pubDate>
       <sparkle:releaseNotesLink>
         https://github.com/AidenYang1/barTimer/releases/tag/v1.0.1
