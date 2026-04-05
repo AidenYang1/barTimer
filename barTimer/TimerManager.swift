@@ -22,6 +22,7 @@ private class NonActivatingWindow: NSWindow {
 }
 
 class TimerManager: ObservableObject {
+    private let defaultFocusEventName = "专注"
     @Published var timers: [TimerData] = []
     @Published var showOverlay = false
     @Published var enableAlertSound = true  // 提示音开关
@@ -298,9 +299,10 @@ class TimerManager: ObservableObject {
                 // 记录已完成的计时器到事件存储
                 let completedTimers = self.timers.filter { $0.remainingTime <= 0 }
                 for completed in completedTimers {
-                    if let name = completed.eventName {
-                        self.eventStore?.addEntry(name: name, duration: completed.originalDuration)
-                    }
+                    self.eventStore?.addEntry(
+                        name: self.normalizedEventName(completed.eventName),
+                        duration: completed.originalDuration
+                    )
                 }
                 
                 self.notifyTimerComplete()
@@ -351,11 +353,46 @@ class TimerManager: ObservableObject {
     
     // 删除特定计时器
     func removeTimer(id: UUID) {
+        if let timerToRemove = timers.first(where: { $0.id == id }) {
+            recordElapsedTimeIfNeeded(for: timerToRemove)
+        }
         timers.removeAll { $0.id == id }
         // 没有活动计时器时停止滴答声
         if !timers.contains(where: { $0.isRunning && !$0.isPaused }) {
             stopTickSound()
         }
+    }
+
+    // 暂停所有计时器
+    func pauseAllTimers() {
+        for index in timers.indices {
+            if timers[index].isRunning && !timers[index].isPaused {
+                timers[index].isPaused = true
+                timers[index].isRunning = false
+            }
+        }
+        stopTickSound()
+    }
+
+    // 删除所有计时器
+    func removeAllTimers() {
+        for timer in timers {
+            recordElapsedTimeIfNeeded(for: timer)
+        }
+        timers.removeAll()
+        stopTickSound()
+    }
+
+    private func normalizedEventName(_ eventName: String?) -> String {
+        let normalized = eventName?.trimmingCharacters(in: .whitespacesAndNewlines)
+        return (normalized?.isEmpty == false) ? normalized! : defaultFocusEventName
+    }
+
+    // 用户手动取消计时时，记录已经消耗掉的时长
+    private func recordElapsedTimeIfNeeded(for timer: TimerData) {
+        let elapsed = max(0, timer.originalDuration - max(0, timer.remainingTime))
+        guard elapsed > 0 else { return }
+        eventStore?.addEntry(name: normalizedEventName(timer.eventName), duration: elapsed)
     }
     
     // 格式化时间显示（用于展开的菜单列表 - 不显示"限定"）

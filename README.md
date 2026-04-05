@@ -1,72 +1,57 @@
-# barTimer
+<p align="center">
+  <img src="docs/images/barTimer.svg" alt="barTimer 图标" width="90"/>
+</p>
 
-> 一个适用于 macOS 的任务栏自然语言快速倒计时小工具。
+# barTimer——Mac上的快捷任务栏限定计时器
 
-在菜单栏直接输入「20min」「1h30m」即可开始计时，无需打开完整应用。
 
-🔗 **[GitHub Releases](https://github.com/AidenYang1/barTimer/releases)**
+
+> 在macOS 的任务栏上使用"自然语言"输入快速设置限定倒计时的工具。
+
+<br>
+
+干着干着就摸鱼去了?
+自己沉浸到其他事件忘记了时间?
+做事越来越慢？效率越来越低？
+没有时间观念，让你办事效率越来越低，无法养成在规定时间内完成指定的任务的习惯。
+
+
+<br>
+
+**使用 barTimer，在菜单栏直接输入自然语言「20min」「1h30m」「40分钟」「10分钟20秒」即可开始计时，无需打开完整应用。你可以混合输入，怎么快怎么方便。**
+
+<img src="docs/images/0.gif" alt="菜单任务" width="700"/>
 
 ---
 
 ## ✨ 功能特性
 
-- **自然语言输入**：支持「20min」「1h30m」「90s」等格式
+- **自然语言输入**：支持「20min」「1h30m」「90s」「90秒」「四十分钟」「10分钟20秒」等格式
+- **多计时器支持**：可以同时设置多个计时器，批量管理
 - **事件绑定**：输入「20min @开会」或「20min 开会」，计时与事件名称关联
 - **菜单栏实时显示**：最近计时器的剩余时间直接显示在菜单栏
-- **历史记录**：查看过去所有计时记录
-- **统计数据**：按事件类型统计时间分配
-- **日历集成**：计时事件可同步到系统日历
-- **iCloud 同步**：计时数据跨设备同步
-- **提示音**：计时结束时播放提示音，支持音量调节
-- **倒计时滴答音**：可开启滴答声增强专注感
-- **系统通知**：计时结束时弹出系统通知
-- **防止睡眠**：计时期间可阻止系统进入睡眠
-- **登录自动启动**：支持开机自启
-- **多语言**：支持简体中文 / English，跟随系统
-- **自动更新**：内置 Sparkle 更新框架，一键下载安装新版本
+- **历史记录**：查看过去所有计时记录，统计数据按事件类型统计时间分配
+- **专注计时提示音**：计时时可开启时针转动白噪音，感受时间的流逝。
+- **倒计时滴答音**：可开启滴答声增强专注感,计时结束时弹出全屏通知窗口，让你清楚知道计时结束
+- **任意界面快捷键呼出**：
+- **iCloud 同步**：计时数据跨设备同步（未来支持）
 
 ---
 
 ## 💻 环境要求
 
 - macOS 13.0 及以上
-- Xcode 15+（源码构建）
 
----
+## 任意界面快捷呼出
+<img src="docs/images/shortcut.gif" alt="#" width="800"/>
 
-## 🚀 安装方式
+## 统计界面
+<img src="docs/images/1.png" alt="#" width="800"/>
+<img src="docs/images/2.png" alt="#" width="800"/>
 
-1. 前往 [Releases](https://github.com/AidenYang1/barTimer/releases) 下载最新版本的 `.dmg`
-2. 打开 `.dmg`，将 `barTimer.app` 拖入 Applications 文件夹
-3. 运行 app，在菜单栏根据提示授予日历权限即可使用
+## 多计时器支持
+<img src="docs/images/4.png" alt="#" width="300"/>
 
----
 
-## 🛠️ 技术栈
 
-| 模块 | 技术 |
-|---|---|
-| 语言 | Swift 5 / SwiftUI |
-| 更新框架 | Sparkle 2.x |
-| 日历 | EventKit |
-| 通知 | UserNotifications |
-| 持久化 | UserDefaults / iCloud NSUbiquitousKeyValueStore |
 
----
-
-## 📦 发版流程（开发者）
-
-1. 改代码 → Xcode 修改版本号（General → Version）
-2. `Product → Archive → Export` → 制作 `.dmg`
-3. GitHub 发布 Release，上传 `.dmg`
-4. 运行脚本自动更新 appcast 并推送：
-
-```bash
-./release.sh 1.0.1 "/path/to/barTimer_1.0.1.dmg"
-```
-
----
-
-## 📄 License
-
-MIT License © 2026 AidenYang

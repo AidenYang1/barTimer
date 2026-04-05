@@ -65,3 +65,8 @@ barTimer/.out-of-code-insights/
 
 # Local tools
 工具/
+
+# Todo2 - AI-powered task management directories
+.cursor/rules/todo2-overview.mdc
+.cursor/rules/todo2.mdc
+.cursor/mcp.json

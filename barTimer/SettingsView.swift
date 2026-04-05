@@ -3,32 +3,28 @@ import ServiceManagement
 
 struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
-    
-    // 添加对窗口控制器的引用
+
     let windowDelegate: SettingsWindowController
-    
-    // 添加 TimerManager 引用以访问提示音设置
+
     @EnvironmentObject var timerManager: TimerManager
-    
-    // 设置项状态变量
+
     @AppStorage("alertSound") private var alertSoundRawValue = TimerManager.AlertSound.sound1.rawValue
     @AppStorage("soundVolume") private var soundVolume = "medium"
-    @AppStorage("enableAlertSound") private var enableAlertSound = true  // 新增：提示音开关
+    @AppStorage("enableAlertSound") private var enableAlertSound = true
     @AppStorage("showNotification") private var showNotification = true
     @AppStorage("showSuggestions") private var showSuggestions = true
     @AppStorage("preventSleep") private var preventSleep = false
-    @AppStorage("launchAtLogin") private var launchAtLogin = false  // 新增：登录时启动
-    @AppStorage("autoCheckUpdate") private var autoCheckUpdate = true  // 自动检查更新
-    @AppStorage("useSpaceForEvent") private var useSpaceForEvent = false  // 空格代替@输入事件
-    @AppStorage(AppLanguage.storageKey) private var appLanguageRaw = AppLanguage.system.rawValue  // 应用语言
-    @AppStorage("enableTickSound") private var enableTickSound = false  // 倒计时滴答音效
-    @AppStorage("tickSoundVolume") private var tickSoundVolume: Double = 0.5  // 滴答音量
-    @AppStorage("enableiCloudSync") private var enableiCloudSync = false  // iCloud 同步
-    
-    // 快捷键记录状态
-    @State private var isRecordingNewTimer = false
-    @State private var isRecordingPauseTimer = false
-    
+    @AppStorage("launchAtLogin") private var launchAtLogin = false
+    @AppStorage("autoCheckUpdate") private var autoCheckUpdate = true
+    @AppStorage("useSpaceForEvent") private var useSpaceForEvent = false
+    @AppStorage(AppLanguage.storageKey) private var appLanguageRaw = AppLanguage.system.rawValue
+    @AppStorage("enableTickSound") private var enableTickSound = false
+    @AppStorage("tickSoundVolume") private var tickSoundVolume: Double = 0.5
+    @AppStorage("enableiCloudSync") private var enableiCloudSync = false
+
+    @ObservedObject private var hotkeyManager = GlobalHotkeyManager.shared
+    @State private var accessibilityTrusted = GlobalHotkeyManager.isAccessibilityTrusted()
+
     let volumeLevels = ["low", "medium", "high"]
     let languageOptions: [AppLanguage] = [.system, .zhHans, .en]
     
@@ -45,19 +41,53 @@ struct SettingsView: View {
                     HStack {
                         Text("创建新计时器:")
                             .frame(width: 150, alignment: .trailing)
-                        Button("记录快捷键") {
-                            isRecordingNewTimer.toggle()
-                        }
+                        ShortcutRecorderButton(
+                            current: hotkeyManager.newTimerShortcut,
+                            onSave: { hotkeyManager.saveNewTimerShortcut($0) }
+                        )
                         .frame(width: 200)
                     }
-                    
+
                     HStack {
-                        Text("暂停当前计时器:")
+                        Text("暂停所有计时器:")
                             .frame(width: 150, alignment: .trailing)
-                        Button("记录快捷键") {
-                            isRecordingPauseTimer.toggle()
-                        }
+                        ShortcutRecorderButton(
+                            current: hotkeyManager.pauseAllShortcut,
+                            onSave: { hotkeyManager.savePauseAllShortcut($0) }
+                        )
                         .frame(width: 200)
+                    }
+
+                    HStack(alignment: .top) {
+                        Text(NSLocalizedString("辅助功能权限:", comment: "Accessibility permission section title"))
+                            .frame(width: 150, alignment: .trailing)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(spacing: 8) {
+                                Image(systemName: accessibilityTrusted ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                    .foregroundColor(accessibilityTrusted ? .green : .orange)
+                                Text(accessibilityTrusted
+                                      ? NSLocalizedString("已授权（全局快捷键可用）", comment: "Accessibility granted status")
+                                      : NSLocalizedString("未授权（全局快捷键不可用）", comment: "Accessibility not granted status"))
+                                    .font(.system(size: 13))
+                            }
+
+                            HStack(spacing: 8) {
+                                Button(NSLocalizedString("打开权限引导", comment: "Open permission guide")) {
+                                    AccessibilityOnboardingWindowController.shared.showWindow()
+                                }
+                                .buttonStyle(.bordered)
+
+                                Button(NSLocalizedString("重新检查", comment: "Recheck accessibility permission")) {
+                                    accessibilityTrusted = GlobalHotkeyManager.isAccessibilityTrusted()
+                                    if accessibilityTrusted {
+                                        GlobalHotkeyManager.shared.startMonitoring()
+                                    }
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
+                        .frame(width: 200, alignment: .leading)
                     }
                 }
                 
@@ -242,7 +272,7 @@ struct SettingsView: View {
 
                     HStack {
                         Spacer()
-                        Button("立即检查更新") {
+                        Button(NSLocalizedString("立即检查更新", comment: "")) {
                             AppDelegate.shared?.checkForUpdates()
                         }
                         .buttonStyle(.bordered)
@@ -294,29 +324,23 @@ struct SettingsView: View {
                         Spacer()
                     }
                     
-                    // iCloud 同步
+                    // iCloud 同步（暂未开放）
                     HStack {
                         Text("iCloud:")
                             .frame(width: 150, alignment: .trailing)
-                        Toggle("同步计时数据到 iCloud", isOn: Binding(
-                            get: { enableiCloudSync },
-                            set: { newValue in
-                                enableiCloudSync = newValue
-                                if newValue {
-                                    timerManager.eventStore?.forceUploadToiCloud()
-                                }
-                            }
-                        ))
-                        .frame(width: 200, alignment: .leading)
+                            .foregroundColor(.secondary)
+                        Toggle("同步计时数据到 iCloud", isOn: .constant(false))
+                            .frame(width: 200, alignment: .leading)
+                            .disabled(true)
+                            .foregroundColor(.secondary)
                     }
                 }
                 
                 Divider()
                     .padding(.vertical, 4)
                 
-                // 版本号显示
-                HStack {
-                    Spacer()
+                // 版本号 + GitHub 链接
+                VStack(spacing: 8) {
                     Text(
                         String(
                             format: NSLocalizedString("VERSION_FORMAT", comment: "App version label"),
@@ -324,10 +348,31 @@ struct SettingsView: View {
                             Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
                         )
                     )
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                    Spacer()
+                    .font(.body)
+                    .foregroundColor(.secondary)
+
+                    Button(action: {
+                        if let url = URL(string: "https://github.com/AidenYang1/barTimer") {
+                            NSWorkspace.shared.open(url)
+                        }
+                    }) {
+                        Image("Github")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                            .foregroundColor(.secondary)
+                            .padding(8)
+                            .background(Circle().fill(Color.gray.opacity(0.15)))
+                    }
+                    .buttonStyle(.plain)
+                    .help("在 GitHub 上查看项目")
                 }
+                // 开源项目仓库地址小字显示
+                Text("项目开源仓库")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                
+                .frame(maxWidth: .infinity)
                 
                 Spacer()
                     .frame(height: 20)
@@ -360,6 +405,7 @@ struct SettingsView: View {
             // 同步设置到 TimerManager
             timerManager.enableAlertSound = enableAlertSound
             timerManager.updateVolume(soundVolume)
+            accessibilityTrusted = GlobalHotkeyManager.isAccessibilityTrusted()
         }
     }
     
@@ -407,4 +453,74 @@ struct SettingsView: View {
 #Preview {
     SettingsView(windowDelegate: SettingsWindowController.shared)
         .environmentObject(TimerManager())
+}
+
+// MARK: - ShortcutRecorderButton
+
+/// 快捷键录制状态用 class 持有，避免 SwiftUI struct 捕获 self 副本导致 @State 无法正确更新
+private class RecorderState: ObservableObject {
+    @Published var isRecording = false
+    private var monitor: Any?
+
+    func start(onCapture: @escaping (HotkeyCombo?) -> Void) {
+        isRecording = true
+        GlobalHotkeyManager.shared.stopMonitoring()
+        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            // 消费当前事件，下一 RunLoop 再处理，避免在回调内部移除自身导致崩溃
+            DispatchQueue.main.async {
+                if event.keyCode == 53 {
+                    self?.stop(result: nil, save: false, onCapture: onCapture)
+                } else {
+                    let mods = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+                    let combo = HotkeyCombo(keyCode: event.keyCode, modifiers: mods.rawValue)
+                    self?.stop(result: combo, save: true, onCapture: onCapture)
+                }
+            }
+            return nil  // 始终消费，防止录制时快捷键触发其他行为
+        }
+    }
+
+    func stop(result: HotkeyCombo?, save: Bool, onCapture: @escaping (HotkeyCombo?) -> Void) {
+        isRecording = false
+        if let m = monitor { NSEvent.removeMonitor(m); monitor = nil }
+        if save { onCapture(result) }
+        GlobalHotkeyManager.shared.startMonitoring()
+    }
+}
+
+struct ShortcutRecorderButton: View {
+    let current: HotkeyCombo?
+    let onSave: (HotkeyCombo?) -> Void
+
+    @StateObject private var state = RecorderState()
+
+    var label: String {
+        if state.isRecording {
+            return NSLocalizedString("请按下快捷键...", comment: "Recording shortcut prompt")
+        }
+        return current?.displayString ?? NSLocalizedString("记录快捷键", comment: "Record shortcut button")
+    }
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Button(label) {
+                if state.isRecording {
+                    state.stop(result: nil, save: false, onCapture: onSave)
+                } else {
+                    state.start(onCapture: onSave)
+                }
+            }
+            .foregroundColor(state.isRecording ? .red : .primary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            if current != nil && !state.isRecording {
+                Button(action: { onSave(nil) }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
 } 

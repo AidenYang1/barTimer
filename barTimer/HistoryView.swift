@@ -27,7 +27,7 @@ class HistoryWindowController: NSObject, NSWindowDelegate {
         hostingView = NSHostingView(rootView: anyView)
         
         newWindow.contentView = hostingView
-        newWindow.title = NSLocalizedString("历史记录", comment: "History window title")
+        newWindow.title = NSLocalizedString("今日历史限定", comment: "History window title")
         newWindow.center()
         newWindow.level = .floating
         newWindow.delegate = self
@@ -60,19 +60,32 @@ struct HistoryView: View {
     @EnvironmentObject var eventStore: EventStore
     let windowDelegate: HistoryWindowController
     @State private var selectedRecord: EventRecord?
+
+    private var todayRecords: [EventRecord] {
+        let calendar = Calendar.current
+        return eventStore.records.compactMap { record in
+            let todayEntries = record.entries.filter { calendar.isDateInToday($0.date) }
+            guard !todayEntries.isEmpty else { return nil }
+            var copy = record
+            copy.entries = todayEntries
+            copy.lastUsed = todayEntries.map(\.date).max() ?? record.lastUsed
+            return copy
+        }
+        .sorted(by: { $0.lastUsed > $1.lastUsed })
+    }
     
     var body: some View {
         VStack(spacing: 0) {
-            if eventStore.records.isEmpty {
+            if todayRecords.isEmpty {
                 Spacer()
                 VStack(spacing: 12) {
-                    Image(systemName: "clock")
+                    Image(systemName: "trophy.fill")
                         .font(.system(size: 40))
                         .foregroundColor(.secondary)
-                    Text("还没有历史记录")
+                    Text(NSLocalizedString("今天还没有历史限定", comment: "No history today"))
                         .font(.title3)
                         .foregroundColor(.secondary)
-                    Text("使用 @ 语法关联事件，如：30分@写代码")
+                    Text(NSLocalizedString("使用 @ 语法关联事件，如：30分@写代码", comment: "Use @ syntax hint"))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -80,7 +93,7 @@ struct HistoryView: View {
             } else {
                 // 事件列表
                 List {
-                    ForEach(eventStore.records.sorted(by: { $0.lastUsed > $1.lastUsed })) { record in
+                    ForEach(todayRecords) { record in
                         EventRowView(record: record, isExpanded: selectedRecord?.id == record.id)
                             .contentShape(Rectangle())
                             .onTapGesture {
@@ -94,7 +107,7 @@ struct HistoryView: View {
                             }
                     }
                     .onDelete { indexSet in
-                        let sorted = eventStore.records.sorted(by: { $0.lastUsed > $1.lastUsed })
+                        let sorted = todayRecords
                         for index in indexSet {
                             eventStore.deleteRecord(id: sorted[index].id)
                         }
@@ -110,7 +123,7 @@ struct HistoryView: View {
             }) {
                 HStack(spacing: 4) {
                     Image(systemName: "chart.bar.fill")
-                    Text("统计")
+                    Text(NSLocalizedString("历史统计", comment: "History stats button title"))
                 }
                 .font(.caption)
             }
@@ -132,6 +145,9 @@ struct EventRowView: View {
     }()
     
     var body: some View {
+        let todayCount = record.entries.count
+        let todayDuration = record.entries.reduce(0) { $0 + $1.duration }
+
         VStack(alignment: .leading, spacing: 8) {
             // 主行
             HStack {
@@ -142,7 +158,7 @@ struct EventRowView: View {
                         String(
                             format: NSLocalizedString("HISTORY_TOTAL_COUNT_FORMAT", comment: "History total count"),
                             locale: Locale.current,
-                            record.entries.count
+                            todayCount
                         )
                     )
                         .font(.caption)
@@ -151,7 +167,7 @@ struct EventRowView: View {
                 
                 Spacer()
                 
-                Text(EventStore.formatDuration(record.totalDuration))
+                Text(EventStore.formatDuration(todayDuration))
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(.orange)
                 

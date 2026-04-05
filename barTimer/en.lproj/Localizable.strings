@@ -24,6 +24,8 @@
 "登录时自动启动" = "Launch at login";
 "检查更新:" = "Check Updates:";
 "自动检查更新" = "Check updates automatically";
+"立即检查更新" = "Check for Updates Now";
+"暂停所有计时器:" = "Pause All Timers:";
 "完成" = "Done";
 "低" = "Low";
 "中等" = "Medium";
@@ -55,6 +57,7 @@
 "iCloud:" = "iCloud:";
 "同步计时数据到 iCloud" = "Sync timer data to iCloud";
 "统计" = "Statistics";
+"历史统计" = "History Stats";
 "概览" = "Overview";
 "今日次数" = "Today";
 "总次数" = "Total";
@@ -64,3 +67,50 @@
 "限定记录" = "Records";
 "暂无数据" = "No data";
 "STATS_EVENT_COUNT_FORMAT" = "%d sessions";
+
+// Accessibility permission & About section
+"辅助功能权限:" = "Accessibility Permission:";
+"已授权（全局快捷键可用）" = "Granted (Global hotkeys enabled)";
+"未授权（全局快捷键不可用）" = "Not granted (Global hotkeys disabled)";
+"打开权限引导" = "Open Permission Guide";
+"重新检查" = "Recheck";
+"项目开源仓库" = "Project Repository";
+"在 GitHub 上查看项目" = "View project on GitHub";
+
+// Hotkey recorder
+"请按下快捷键..." = "Please press a shortcut...";
+
+// Statistics button title (time mode)
+"按时间统计" = "By Time";
+
+// Accessibility onboarding window & view
+"启用全局快捷键响应" = "Enable Global Hotkey Support";
+"需要开启辅助功能权限" = "Accessibility Permission Required";
+"barTimer 使用全局快捷键来快速呼出限定计时框（例如在任意应用中按下快捷键即可记录倒计时）。" = "barTimer uses global hotkeys to quickly bring up the timer input (for example, press the shortcut in any app to record a countdown).";
+"macOS 要求这类全局键盘监听必须获得“辅助功能”授权。不开启时，快捷键会按下无效，可能只听到系统提示音。" = "macOS requires “Accessibility” permission for this kind of global keyboard monitoring. Without it, the hotkey won't work (you may only hear a system sound).";
+"当前状态：已授权，正在进入应用..." = "Granted. Entering the app...";
+"当前状态：未授权（未授权时无法继续使用）" = "Not granted (you can’t continue without it).";
+"仅用于监听你设置的快捷键" = "Used only to listen for your configured hotkeys";
+"不会用于其他用途" = "Not used for anything else";
+"去设置并启用" = "Go to Settings and Enable";
+"授权后将自动继续" = "We'll continue automatically once enabled";
+
+// History & statistics extra strings
+"今日历史限定" = "Today's History Limits";
+"今天还没有历史限定" = "No limits recorded today";
+"昨天" = "Yesterday";
+"今天" = "Today";
+"特定时间" = "Specific Date";
+"选择日期" = "Choose Date";
+"日期" = "Date";
+"确定" = "OK";
+"返回" = "Back";
+"搜索" = "Search";
+"搜索事件名称…" = "Search event name…";
+"事件名" = "Event";
+"时长" = "Duration";
+"次数" = "Count";
+"STATS_MORE_THAN_YESTERDAY_FORMAT" = "%d more than yesterday";
+"STATS_LESS_THAN_YESTERDAY_FORMAT" = "%d fewer than yesterday";
+"时长_FORMAT" = "Duration: %@";
+"次数_FORMAT" = "Count: %d";

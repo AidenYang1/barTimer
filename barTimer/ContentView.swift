@@ -132,6 +132,30 @@ struct ContentView: View {
     @AppStorage("useSpaceForEvent") private var useSpaceForEvent = false
     @State private var isHoveringMuteButton = false
     @State private var muteBellRotation: Double = 0
+
+    private let timerRowHeight: CGFloat = 36
+    private let timerItemSpacing: CGFloat = 12
+
+    // 单个计时器行占用的总高度（含间距）
+    private var timerListNaturalHeight: CGFloat {
+        guard !timerManager.timers.isEmpty else { return 0 }
+        return CGFloat(timerManager.timers.count) * timerRowHeight
+            + CGFloat(timerManager.timers.count - 1) * timerItemSpacing
+            + 8 // 上下内边距
+    }
+
+    // 可用最大高度：屏幕高度 - 菜单栏 - 固定头部区域
+    private var maxTimerListHeight: CGFloat {
+        let screenHeight = NSScreen.main?.visibleFrame.height ?? 800
+        let fixedContentHeight: CGFloat = 185 // 头部 + 输入框 + padding
+        let menuBarHeight: CGFloat = 24
+        return max(screenHeight - fixedContentHeight - menuBarHeight, 100)
+    }
+
+    private var timerListHeight: CGFloat {
+        guard !timerManager.timers.isEmpty else { return 0 }
+        return min(timerListNaturalHeight, maxTimerListHeight)
+    }
     
     // 根据输入过滤事件建议
     private var eventSuggestions: [String] {
@@ -198,53 +222,23 @@ struct ContentView: View {
                         }
                     }
                     
-                    // 历史记录按钮
-                    Group {
-                        if #available(macOS 26.0, *) {
-                            Image(systemName: "clock.arrow.circlepath")
-                                .font(.system(size: 18))
-                                .padding(8)
-                                .glassEffect(.regular.interactive(), in: .circle)
-                                .onTapGesture {
-                                    HistoryWindowController.shared.showWindow(eventStore: eventStore)
-                                }
-                        } else {
-                            Image(systemName: "clock.arrow.circlepath")
-                                .font(.system(size: 18))
-                                .padding(8)
-                                .background(
-                                    Circle()
-                                        .fill(Color.gray.opacity(0.2))
-                                )
-                                .onTapGesture {
-                                    HistoryWindowController.shared.showWindow(eventStore: eventStore)
-                                }
+                    // 历史记录按钮（奖杯）
+                    Image(systemName: "trophy.fill")
+                        .font(.system(size: 16))
+                        .padding(8)
+                        .background(Circle().fill(Color.gray.opacity(0.2)))
+                        .onTapGesture {
+                            HistoryWindowController.shared.showWindow(eventStore: eventStore)
                         }
-                    }
                     
                     // 设置按钮
-                    Group {
-                        if #available(macOS 26.0, *) {
-                            Image(systemName: "gearshape.fill")
-                                .font(.system(size: 20))
-                                .padding(8)
-                                .glassEffect(.regular.interactive(), in: .circle)
-                                .onTapGesture {
-                                    SettingsWindowController.shared.showWindow(timerManager: timerManager)
-                                }
-                        } else {
-                            Image(systemName: "gearshape.fill")
-                                .font(.system(size: 20))
-                                .padding(8)
-                                .background(
-                                    Circle()
-                                        .fill(Color.gray.opacity(0.2))
-                                )
-                                .onTapGesture {
-                                    SettingsWindowController.shared.showWindow(timerManager: timerManager)
-                                }
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 20))
+                        .padding(8)
+                        .background(Circle().fill(Color.gray.opacity(0.2)))
+                        .onTapGesture {
+                            SettingsWindowController.shared.showWindow(timerManager: timerManager)
                         }
-                    }
                 }
             }
             
@@ -336,28 +330,50 @@ struct ContentView: View {
                 .padding(.horizontal, 4)
             }
             
-            // 计时器列表
-            ScrollView {
-                if #available(macOS 26.0, *) {
-                    GlassEffectContainer(spacing: 20) {
-                        VStack(spacing: 10) {
-                            ForEach(timerManager.timers) { timer in
-                                TimerItemView(timer: timer, timerManager: timerManager)
-                            }
-                        }
+            // 批量操作按钮（超过3个计时器时显示）
+            if timerManager.timers.count > 3 {
+                HStack(spacing: 16) {
+                    Spacer()
+
+                    // 暂停所有
+                    Button(action: { timerManager.pauseAllTimers() }) {
+                        Image(systemName: "pause.fill")
+                            .font(.system(size: 15))
+                            .foregroundColor(.primary)
+                            .frame(width: 44, height: 44)
+                            .background(Circle().fill(Color.gray.opacity(0.25)))
                     }
-                } else {
-                    VStack(spacing: 10) {
+                    .buttonStyle(.plain)
+
+                    // 取消所有
+                    Button(action: { timerManager.removeAllTimers() }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 15))
+                            .foregroundColor(.red)
+                            .frame(width: 44, height: 44)
+                            .background(Circle().fill(Color.red.opacity(0.2)))
+                    }
+                    .buttonStyle(.plain)
+
+                    Spacer()
+                }
+            }
+
+            // 计时器列表
+            if !timerManager.timers.isEmpty {
+                ScrollView {
+                    VStack(spacing: timerItemSpacing) {
                         ForEach(timerManager.timers) { timer in
                             TimerItemView(timer: timer, timerManager: timerManager)
                         }
                     }
+                    .padding(.vertical, 4)
                 }
+                .frame(height: timerListHeight)
             }
         }
         .padding()
         .frame(width: 350)
-        .frame(minHeight: 170)
         .onAppear {
             keyHandler.onSelect = { index in
                 let suggestions = eventSuggestions
@@ -486,22 +502,13 @@ struct TimerItemView: View {
     var body: some View {
         HStack(spacing: 12) {
             // 时间显示部分（含事件名）
-            if #available(macOS 26.0, *) {
-                timerLabel
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 36)
-                    .background(timerColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .glassEffect(.regular.tint(timerColor), in: .rect(cornerRadius: 10))
-            } else {
-                timerLabel
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 36)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(timerColor)
-                    )
-            }
+            timerLabel
+                .frame(maxWidth: .infinity)
+                .frame(height: 36)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(timerColor)
+                )
             
             // 暂停/播放按钮
             Button(action: {
