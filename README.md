@@ -20,7 +20,7 @@
 
 **使用 barTimer，在菜单栏直接输入自然语言「20min」「1h30m」「40分钟」「10分钟20秒」即可开始计时，无需打开完整应用。你可以混合输入，怎么快怎么方便。**
 
-<img src="docs/images/0.gif" alt="菜单任务" width="700"/>
+<img src="docs/images/0.gif" alt="菜单任务" width="550"/>
 
 ---
 
@@ -43,11 +43,11 @@
 - macOS 13.0 及以上
 
 ## 任意界面快捷呼出
-<img src="docs/images/shortcut.gif" alt="#" width="800"/>
+<img src="docs/images/shortcut.gif" alt="#" width="550"/>
 
 ## 统计界面
-<img src="docs/images/1.png" alt="#" width="800"/>
-<img src="docs/images/2.png" alt="#" width="800"/>
+<img src="docs/images/1.png" alt="#" width="500"/>
+<img src="docs/images/2.png" alt="#" width="500"/>
 
 ## 多计时器支持
 <img src="docs/images/4.png" alt="#" width="300"/>
